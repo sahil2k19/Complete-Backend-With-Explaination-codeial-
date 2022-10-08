@@ -1240,7 +1240,7 @@ so that `Outsider` cannot explicitly goes to form action by knowing URL\
 We do this so that `OUtsider` cannot create its own html and submit the form to required action
 
 So in `routes/post.js`
-```js
+``  `js
 const passport = require('passport');
 
 
@@ -1394,7 +1394,63 @@ router.get('/destroy/:id', passport.checkAuthentication, commentsController.dest
 module.exports = router;
 
 ```
+### Now we need to show `Comments` and the `author` of the comment
+First we preload the comments and then we Show the comments
 
+Now we need to preload multiple `Models`
+```js
+module.exports.home = function(req,res){
+    // we populate user from all the posts
+    Post.find({})
+    .populate('user')
+    .populate({
+        path:'comments',
+        .populate({
+            path:'user',
+        })
+    })
+    .exec(function(err, posts){
+        return res.render('home', {
+            title:"codeial ,
+            posts:posts,
+        })
+    })
+}
+
+```
+In above code first we find `All Post`\
+Then we fetch all `User` and `Comments` of that `Post` \
+Then in `Comments` we also fetch `User` who comment on that `post`
+
+So basically when we display this in our `home.ejs` we loop over-> first `post.user`\
+and then `post.comments` and after that `post.comments.user` 
+
+now in `home.ejs`
+
+```
+
+        
+
+<div class="post-comments-list">
+    <ul id="post-comments-<%= post._id %>">
+        <% for (comment of post.comments){%>
+
+            <p>
+                <small>
+                    <a href="/comments/destroy/<%= comment.id %> ">X</a>
+                </small>
+                <%= comment.content %>
+                <br>
+                <small>
+                    <%= comment.user%>
+                </small>
+            </p>
+        <%} %>
+    </ul>
+</div>
+
+
+```
 
 
 \
