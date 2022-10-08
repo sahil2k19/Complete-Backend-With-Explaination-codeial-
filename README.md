@@ -1377,7 +1377,7 @@ Now we have to create `Routes` for that
 
 create `routes/comments.js`
 
-```c++
+```js
 const express = require('express');
 
 const router = express.Router();
