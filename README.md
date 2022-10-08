@@ -1217,7 +1217,7 @@ And like magic, we have created a unified object using 2 schemas, 2 models, and 
 
 ### Check Authentication on Creating Post
 
-```c++
+```js
 <link rel="stylesheet" href="/css/home.css">
 
 <div id="home-container">
@@ -1253,7 +1253,7 @@ router.post('/create', passport.checkAuthentication, postsController.create);
 create `models/comment.js`
 
 
-```c
+```js
 const mongoose = require('mongoose');
 const commentSchema = new mongoose.Schema({
     content:{
@@ -1279,7 +1279,7 @@ So instead of going to each `Comments` we can freaquently fetch that as the quer
 By adding the `Comment-collection(model)` inside the `Post` 
 
 In `models/post`
-```java
+```js
 const postSchema = new mongoose.Schema({
     content: {
         type: String,
@@ -1308,7 +1308,7 @@ const postSchema = new mongoose.Schema({
 ### Adding comments to the DB
 
 So in `home.ejs`
-```html
+```js
 <div class="post-comments">
     <% if (locals.user){ %>
         <form action="/comments/create" method="POST">
