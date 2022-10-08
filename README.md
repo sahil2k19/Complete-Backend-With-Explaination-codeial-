@@ -1427,7 +1427,7 @@ and then `post.comments` and after that `post.comments.user`
 
 now in `home.ejs`
 
-```
+```js
 
         
 
