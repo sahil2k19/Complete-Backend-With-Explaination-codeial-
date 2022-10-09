@@ -1418,6 +1418,7 @@ module.exports.home = function(req,res){
 }
 
 ```
+In above code we just preload all the comments and theri information(user.id)
 In above code first we find `All Post`\
 Then we fetch all `User` and `Comments` of that `Post` \
 Then in `Comments` we also fetch `User` who comment on that `post`
@@ -1634,9 +1635,34 @@ so
 ```js
 request.query.userId = 5896544
 ```
+#
 
 
 
+
+
+
+
+
+
+
+
+
+
+## User Profile
+So moving toward `Update` we need that `user` can `Update` their `Profile` \
+And before that first display all the list of the `User` on the `home` Only if the `user` is `Sign-in`
+ 
+we will get the list of all `users` in `controllers`-> `home_controller`
+
+```js
+const User = require('/models/user');
+
+
+
+
+
+```
 
 
 
