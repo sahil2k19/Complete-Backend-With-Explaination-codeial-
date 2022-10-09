@@ -1453,6 +1453,201 @@ now in `home.ejs`
 ```
 
 
+
+#
+## Delete Post and Comment 
+#
+### First Deleting Post :-
+By deleting `post` we have to remember that `comment` associate with that `post` so we need to delete that too.\
+To delete a `Post` we need a `Action`(in-form-html)\
+Then we need a `route` which map to that `action`\
+And we place link to that `route`
+
+So this is the format of the route => `/posts/destroy/:id` 
+
+So in `controllers/posts_constroller.js`
+```js
+const Comment = require('../models/comment');
+
+module.exports.destroy = async function(req,res){
+    try{
+        let post = await Post.findById(req.params.id);
+        // .id means converting the object id into string
+        if(post.user==req.user.id){
+            post.remove();
+            Comment.deleteMany({post:req.params.id});
+            return res.redirect('back');
+        }
+        else {
+            return res.redirect('back');
+        }
+    }
+    catch(err){
+        console.log('error in doing delete');
+        return res.redirect('back');
+    }
+}
+
+```
+In above code ideally we should do `req.user._id` but when we compare `two id's` we should compare in `string`\
+And here `mongoose` will automatic convert this in string when we do `req.user.id`
+
+`Comment.deleteMany()` delete all the `comments` based on some `Query` passed.\
+So We passed `Post` and we delete all the `comments` related to that `post`
+
+
+Now we add route for that/
+in `route/post.js` 
+```js
+
+route.get('/destroy/:id',passport.checkAuthentication , postsController.destroy);
+
+```
+
+So in `home.ejs`\
+we add a Delete Button
+```js
+
+<% if (locals.user && locals.user.id== post.user.id){ %>
+    <small>
+        <a href="/posts/destroy/post.id">X</a>
+    </small>
+<% }%>
+
+
+```
+
+### Second Deleting Comments :-
+So deleting a comment might be tricky.\
+As we know `Post` have array of `comments` inside the post model for preloading the `comments`\
+And we saw how preloading is useful.
+
+Now lets see how we will deleting a comment.
+
+Deleting a comments will be the same as the Post.
+
+So in `controllers`
+```js
+
+module.exports.destroy = async function(req,res){
+    try{
+        let comment =await Comment.findById(req.params.id);
+        if(comment.user == req.user.id){
+            let post_id = comment.post;
+            comment.remove();
+            Post.findByIdAndUpdate($pull:{comment:req.pramas.id})
+        }
+            return res.redirect('back');
+    }
+    catch(err){
+        return res.redirect('back');
+    }
+}
+
+```
+So in above code what we did is :-\
+Here we have to delete `comments` from 2 places 1st the `comment-model` itself \
+And 2nd from the array of comment in the `Post model`
+
+If u look at models of `Comments` and `Post` you can see that
+
+```
+Comment_model=> Comment.user
+                Comment.post
+
+   Post_model=> Post.user
+                Post.Comment[...]
+
+```
+So deleting array of `comments` in `post` model\
+we need ` post.id` for that
+which we got from the `comment.post` and we store that in `post_id` variable
+
+Then we did `findByIdAndUpdate` which update the `post` \
+In that we pass Query using `($pull:{comment:req.params.id})`
+
+In Query `{comment:req.params.id}` refers to `=>` "select those comment which have the same id (req.params.id)"
+\
+\
+So in `routes->comments`
+
+```js
+router.get('destroy/:id', passport.checkAuthentication,commentsControllers.destroy);
+
+```
+
+After that we create `delete button` for the `comment` in `home`
+
+```js
+<% if (locals.user && locals.user.id== comment.user.id){ %>
+    <small>
+        <a href="/comments/destroy/comment.id">X</a>
+    </small>
+<% }%>
+
+```
+## Lets know the difference between req.params and req.query:
+
+Suppose you have defined your route name like this:
+
+```js
+https://localhost:3000/user/:userId
+```
+which will become:
+```js
+https://localhost:3000/user/5896544
+```
+
+Here, if you will print: `request.params`
+```js
+{
+userId : 5896544
+}
+```
+so
+
+```js
+request.params.userId = 5896544
+```
+so `request.params` is an object containing properties to the named route
+
+and `request.query` comes from query parameters in the URL eg:
+
+```js
+https://localhost:3000/user?userId=5896544 
+```
+`request.query`
+
+
+
+```js
+{
+
+userId: 5896544
+
+}
+```
+
+so
+
+
+```js
+request.query.userId = 5896544
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 \
 \
 \
