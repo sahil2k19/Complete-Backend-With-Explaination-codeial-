@@ -1652,18 +1652,100 @@ request.query.userId = 5896544
 ## User Profile
 So moving toward `Update` we need that `user` can `Update` their `Profile` \
 And before that first display all the list of the `User` on the `home` Only if the `user` is `Sign-in`
- 
+
 we will get the list of all `users` in `controllers`-> `home_controller`
 
 ```js
 const User = require('/models/user');
 
+module.exports.home =async function(req,res){
+    try{
+        let post = await Post.find({})
+            .populate('user')
+            .populate({
+                path: 'comments',
+                populate: {
+                    path: 'user'
+                }
+            });
+        
+        let users = User.find({});
 
+        return res.render('home',{
+            title:"codeial|home",
+            post:post,
+            all_users:users,
+        })
+    }
+    catch(err){
+        console.log('error', err);
+        return;
+    }
+
+}
+
+```
+Then we display all the `users` in `home.ejs`
+
+```js
+
+<div id="user-friends">
+
+    <ul>
+        <% for(  user of all_users ) { %>
+            
+            <li>
+                <a href="/users/profile/<%= user.id %> "> <%= user.name %></a> 
+            </li>
+        <% } %>
+    </ul>
+
+</div>
 
 
 
 ```
 
+In above code we passed the `user.id` in `action`=>`/users/profile/:id`
+
+
+Then in `routes->user.js`
+
+```js
+router.get('/profile/:id', usersController.profile);
+
+```
+Then in `Controllers->user_controller`
+
+```js
+module.exports.profile = async function (req, res) {
+
+    let user = await User.findById(req.params.id);
+
+    return res.render('user_profile', {
+        title: 'User Profile',
+        profile_user:user,
+    })
+}
+```
+Now in `Profile.ejs`
+
+```js
+<link rel="stylesheet" href="/css/user_profile.css">
+<h1>
+    Codeial / Profile Page
+</h1>
+
+<p>
+    <%= profile_user.name %>
+</p>
+
+<p>
+    <%= profile_user.email %>
+</p>
+
+
+```
 
 
 
