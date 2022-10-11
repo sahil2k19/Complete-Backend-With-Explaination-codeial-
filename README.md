@@ -1649,7 +1649,7 @@ request.query.userId = 5896544
 
 
 
-## User Profile
+## Creating User Profile Links :-
 So moving toward `Update` we need that `user` can `Update` their `Profile` \
 And before that first display all the list of the `User` on the `home` Only if the `user` is `Sign-in`
 
@@ -1692,10 +1692,10 @@ Then we display all the `users` in `home.ejs`
 <div id="user-friends">
 
     <ul>
-        <% for(  user of all_users ) { %>
+        <% for(  u of all_users ) { %>
             
             <li>
-                <a href="/users/profile/<%= user.id %> "> <%= user.name %></a> 
+                <a href="/users/profile/<%= user.id %> "> <%= u.name %></a> 
             </li>
         <% } %>
     </ul>
@@ -1712,7 +1712,7 @@ In above code we passed the `user.id` in `action`=>`/users/profile/:id`
 Then in `routes->user.js`
 
 ```js
-router.get('/profile/:id', usersController.profile);
+router.get('/profile/:id',passport.checkAuthentication, usersController.profile);
 
 ```
 Then in `Controllers->user_controller`
@@ -1746,15 +1746,47 @@ Now in `Profile.ejs`
 
 
 ```
+#
+## Updating User Profile :-
+Display form when User Sign in and click to his/her own Profile Page
+
+Go to `User_profile.ejs`
+
+```js
+<% if(user.id== profile_user.id){ %>
+    //if user matches then show the form 
+    <form action="/users/update/<%= profile_user.id %>" method="POST">
+        <input type="text" name="name" placeholder="Your Name" value="<%= profile_user.name %>" required>
+        <input type="email" name="email" placeholder="Your Email" value="<%= profile_user.email %>" required>
+        <input type="submit"  value="Update">
+    </form>
+    
+<%}else{%>    
+    // else show only the profile info -->
+    <p><%= profile_user.name %></p>
+    <p><%= profile_user.email %></p>
+<%} %>
 
 
+```
+Now we need to create `Route` and `Action` \
+in `routes/user.js`
+```js
+router.post('/update/:id',passport.checkAuthentication, usersController.update);
 
+```
+now in `users_controller`
 
+```js
 
+module.exports.update = async function (req, res) {
 
+    let user = await User.findByIdAndUpdate(req.params.id,{name:req.body.name, email:req.body.email});
 
+    return res.redirect('/');
+}
 
-
+```
 
 \
 \
