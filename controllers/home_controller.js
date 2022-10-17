@@ -1,6 +1,9 @@
 const Post = require('../models/post');
 
-module.exports.home = function (req, res) {
+const User = require('../models/user');
+
+
+// module.exports.home = function (req, res) {
     // console.log(req.cookies);
     // res.cookie('user_id', 25);
 
@@ -22,20 +25,33 @@ module.exports.home = function (req, res) {
 
     // Post.find({}).populate('user').exec(function (err, posts) { console.log(posts.user) }) -- fixing in stackoverflow
 
-    Post.find({})
+
+module.exports.home = async function (req, res) {
+    try{
+        let posts = await Post.find({})
+        .sort('-createdAt') // this is basically a timeStamps 
+        // we sort according to it ->>Remember this is how data strored in mongodb(timestabms)
         .populate('user')
         .populate({
             path: 'comments',
             populate: {
                 path: 'user'
             }
+        });
+        
+        let users = await User.find({});
+
+        return res.render('home',{
+            title:"codeial|home",
+            posts:posts,
+            all_users:users,
         })
-        .exec(function (err, posts) {
-            return res.render('home', {
-                title: "Codeial | Home",
-                posts: posts
-            });
-        })
+    }
+    catch(err){
+        console.log('error', err);
+        return;
+    }
+
 
 }
 
